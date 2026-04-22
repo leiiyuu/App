@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -100,7 +101,7 @@ val sampleRecipeList = listOf(
 val sampleRecipeDetailsList = listOf(
     RecipeDetails(
         id = 1,
-        title = "сырники",
+        title = "pancakes",
         category = "десерт",
         description = "классический рецепт на сковороде",
         ingredients = "творог, яйцо, сахар, мука",
@@ -110,7 +111,7 @@ val sampleRecipeDetailsList = listOf(
     ),
     RecipeDetails(
         id = 2,
-        title = "чизкейк",
+        title = "cheesecake",
         category = "десерт",
         description = "творожный десерт без выпечки",
         ingredients = "печенье, масло, творожный сыр, сливки, сахар, желатин",
@@ -120,7 +121,7 @@ val sampleRecipeDetailsList = listOf(
     ),
     RecipeDetails(
         id = 3,
-        title = "цезарь",
+        title = "caesar",
         category = "салат",
         description = "классический салат с курицей и сухариками",
         ingredients = "курица, салат, черри, яйцо, пармезан, сухари, соус цезарь",
@@ -130,7 +131,7 @@ val sampleRecipeDetailsList = listOf(
     ),
     RecipeDetails(
         id = 4,
-        title = "отбивные",
+        title = "cutlets",
         category = "ужин",
         description = "свиные отбивные на сковороде",
         ingredients = "свинина, яйцо, сухари, соль, перец, масло",
@@ -140,7 +141,7 @@ val sampleRecipeDetailsList = listOf(
     ),
     RecipeDetails(
         id = 5,
-        title = "медовик",
+        title = "honey cake",
         category = "десерт",
         description = "классический медовый торт",
         ingredients = "мука, мед, сахар, яйца, сметана, масло",
@@ -159,8 +160,9 @@ data class RecipeListUiState(
 @SuppressLint("MutableCollectionMutableState")
 class RecipeViewModel : ViewModel() {
 
-    private var _recipes by mutableStateOf(sampleRecipeList.toMutableList())
-
+    private val _recipes = mutableStateListOf<Recipe>().apply {
+        addAll(sampleRecipeList)
+    }
     var uiState by mutableStateOf(RecipeListUiState())
         private set
 
@@ -208,19 +210,10 @@ class RecipeViewModel : ViewModel() {
         return details.copy(status = recipe.status)
     }
 
-    private fun filterRecipe(query: String): List<Recipe> {
-        if (query.isBlank()) return _recipes
-
-        return _recipes.filter { recipe ->
-            recipe.title.contains(query, ignoreCase = true)
-        }
-    }
-
     fun updateStatus(recipeId: Int, newStatus: RecipeStatus) {
         val index = _recipes.indexOfFirst { it.id == recipeId }
         if (index != -1) {
-            val currentRecipe = _recipes[index]
-            _recipes[index] = currentRecipe.copy(status = newStatus)
+            _recipes[index] = _recipes[index].copy(status = newStatus)
 
         }
     }
@@ -370,7 +363,7 @@ fun FilterChipSimple(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    androidx.compose.material3.Surface(
+    Surface(
         modifier = Modifier.clickable(onClick = onClick),
         shape = MaterialTheme.shapes.small,
         color = if (isSelected) MaterialTheme.colorScheme.primary
